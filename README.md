@@ -26,5 +26,4 @@ This app challenges players to solve grid-based puzzles by selecting the correct
 ## Coming Soon
 
 - 📤 Export & share puzzles  
-- 🌐 Online multiplayer or challenge mode  
 - 🧩 Puzzle editor for custom grids  
