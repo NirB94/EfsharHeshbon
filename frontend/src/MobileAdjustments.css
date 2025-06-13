@@ -1,0 +1,209 @@
+@media (max-width: 500px) {
+  .cell {
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 20px !important;
+  }
+
+  .target {
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 18px !important;
+    line-height: 48px !important;
+  }
+
+  .target-hint {
+    font-size: 10px !important;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .main-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap; /* 🔒 מונע ירידת שורה */
+  }
+
+  .main-controls button {
+    font-size: 14px;
+    padding: 8px 12px;
+    min-width: 100px;
+    width: 100px;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  .solution-button-wrapper {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    width: 62%;
+  }
+
+  .solution-button {
+    font-size: 16px;
+    padding: 10px 16px;
+    width: 100px !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+
+  .toggle-switch {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .theme-toggle,
+  .back-button {
+    font-size: 20px !important;
+    top: 8px !important;
+  }
+
+  .puzzle-container {
+    padding: 10px !important;
+  }
+}
+
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  body {
+    overflow: hidden; /* מבטל גלילה */
+  }
+
+  .puzzle-container {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: center;
+    height: 100vh;
+    padding-inline-start: 32px !important; /* דוחף את שני הבלוקים פנימה מימין */
+    padding-inline-end: 16px !important;
+    box-sizing: border-box;
+    gap: 40px; /* ריווח בין הלוח ל-side-panel */
+  }
+
+  h2 {
+    font-size: 24px !important;  /* מעט גדול יותר בלרוחב */
+    position: absolute;
+    top: 24px;                   /* ↓ הורדה קלה */
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0 !important;
+  }
+
+  .puzzle-grid {
+    margin-left: 0 !important;
+    margin-right: 40px !important; /* ✅ דוחף את הלוח ימינה */
+    transform: scale(0.95);
+    transform-origin: left center;
+  }
+
+  /* איפוס עיצוב פנימי עבור טקסטים וכו' */
+  .controls,
+  .toggle-switch,
+  .minimal-steps,
+  .message,
+  p[style*="צעדים"] {
+    all: unset;
+    display: block;
+  }
+
+  .side-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transform: translate(-70px, -30px);
+    max-width: 40%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .side-top {
+    margin-bottom: 4px;
+    transform: translateY(6px); /* ↓ מוריד טיפונת */
+  }
+
+  .side-buttons {
+    transform: translateY(-6px); /* ↑ מעלה את הכפתורים */
+  }
+
+  .side-panel p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .side-panel .toggle-switch {
+    justify-content: center !important;
+  }
+
+  .side-panel .main-controls {
+    display: flex;
+    flex-direction: row !important; /* ✅ שני כפתורים באותה שורה */
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .side-panel .main-controls button,
+  .side-panel .solution-button {
+    width: 110px !important;
+    font-size: 14px !important;
+    padding: 8px !important;
+    text-align: center;
+  }
+
+  .controls {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .main-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .main-controls button,
+  .solution-button {
+    width: 100px !important;
+    font-size: 14px !important;
+    padding: 8px !important;
+  }
+
+  .solution-button-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-top: 6px;
+  }
+
+  .toggle-switch {
+    flex-direction: row !important;
+    gap: 6px !important;
+    margin-top: 6px !important;
+  }
+
+  .back-button,
+  .theme-toggle {
+    position: absolute !important;
+    top: 6px !important;
+    font-size: 18px !important;
+  }
+
+  .back-button {
+    right: 10px !important;
+  }
+
+  .theme-toggle {
+    left: 10px !important;
+  }
+}
+
