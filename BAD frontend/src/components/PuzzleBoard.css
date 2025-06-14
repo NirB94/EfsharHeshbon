@@ -1,0 +1,60 @@
+.puzzle-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.puzzle-grid {
+  display: inline-block;
+  margin: 20px auto;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  margin: 2px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cell.marked {
+  background-color: lightblue;
+}
+
+.target {
+  width: 40px;
+  height: 40px;
+  margin: 2px;
+  line-height: 40px;
+  font-weight: bold;
+  background-color: #f0f0f0;
+}
+
+.target {
+  color: lightgray;
+  font-weight: bold;
+}
+
+.target.active {
+  color: black;
+}
+
+
+.row-target {
+  margin-left: 10px;
+}
+
+.col-target {
+  font-size: 14px;
+  text-align: center;
+}
+
+.corner {
+  width: 40px;
+  height: 40px;
+  margin: 2px;
+}

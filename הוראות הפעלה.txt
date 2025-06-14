@@ -1,0 +1,8 @@
+בתיקיית backend:
+ python3 -m uvicorn main:app --reload
+
+בתיקיית frontend-fixed:
+npm run dev
+
+לפתוח בדפדפן:
+http://localhost:5173
