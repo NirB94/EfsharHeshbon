@@ -118,6 +118,13 @@ export default function App() {
       {/* Operation selection screen */}
       {screen === 'operation' && !loading && (
         <div className="menu" dir="rtl">
+          <button
+            className="back-button"
+            onClick={() => setScreen('menu')}
+            title="חזרה לתפריט הראשי"
+          >
+            →{/* אותו חץ */}
+          </button>
           <h2 dir="rtl">בחר סוג משחק:</h2>
           <button onClick={() => startGame('+')}>חיבור</button>
           <button onClick={() => startGame('*')}>כפל</button>
