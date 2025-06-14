@@ -58,7 +58,7 @@ export default function App() {
   const startGame = async (op) => {
     setLoading(true);
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+      const backendUrl = 'https://efsharheshbon.onrender.com';
       const res = await fetch(`${backendUrl}/new_game`, {
         method: 'POST',
         headers: {

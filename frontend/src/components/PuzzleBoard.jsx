@@ -216,7 +216,7 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
   useEffect(() => {
     const fetchSolution = async () => {
       try {
-        const res = await fetch('http://localhost:8000/solve', {
+        const res = await fetch('https://efsharheshbon.onrender.com/solve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ board, target_rows: targetRows, target_cols: targetCols, operation })
