@@ -14,6 +14,8 @@
 
   .target-hint {
     font-size: 10px !important;
+    position: relative;
+    top: -16px;
   }
 
   .controls {
@@ -73,6 +75,16 @@
 @media screen and (orientation: landscape) and (max-height: 500px) {
   body {
     overflow: hidden; /* מבטל גלילה */
+  }
+
+  .operation-menu {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding-top: 70px;
+    gap: 10px;
+    position: relative;
   }
 
   .puzzle-container {

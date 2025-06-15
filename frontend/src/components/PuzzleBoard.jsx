@@ -26,6 +26,10 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
   const [showModal, setShowModal] = useState(false);
   const [allSolutions, setAllSolutions] = useState([]);
   const [badCells, setBadCells] = useState([]);
+  const [autoMarkedCells, setAutoMarkedCells] = useState([]);
+  const [autoClearedCells, setAutoClearedCells] = useState([]);
+  const [solutionShown, setSolutionShown] = useState(false);
+  const [solutionEverShown, setSolutionEverShown] = useState(false);
 
   /**
    * Toggle a cell between selected/forbidden based on the current mode.
@@ -203,7 +207,7 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
               : row
           );
           setUserGrid(updated);
-          setMoves(prev => prev + 1);
+          setMoves(prev => prev + 2);
           return;
         }
       }
@@ -278,11 +282,56 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
    * Automatically fill the board with the correct solution.
    */
   const showSolution = () => {
-    if (!solutionGrid) return;
-    setUserGrid(solutionGrid);
-    setManualSolve(false);
-    setMessage('📌 הפתרון סומן על הלוח.');
-  };
+  if (!solutionGrid) return;
+
+  // ביטול הפתרון: החזרת המצב לקדמותו
+  if (autoMarkedCells.length > 0 || autoClearedCells.length > 0) {
+    const restoredGrid = userGrid.map((row, i) =>
+      row.map((val, j) => {
+        if (autoMarkedCells.some(([x, y]) => x === i && y === j)) return 0;
+        if (autoClearedCells.some(([x, y]) => x === i && y === j)) return 1;
+        return val;
+      })
+    );
+    setUserGrid(restoredGrid);
+    setAutoMarkedCells([]);
+    setAutoClearedCells([]);
+    setMessage('');
+    setSolutionShown(false);
+    return;
+  }
+
+  // סימון הפתרון: הוספת החסרים והסרת שגויים
+  const newAutoMarked = [];
+  const newAutoCleared = [];
+
+  const updated = userGrid.map((row, i) =>
+    row.map((val, j) => {
+      const shouldBeMarked = solutionGrid[i][j] === 1;
+      const isMarked = val === 1;
+
+      if (shouldBeMarked && !isMarked && !forbiddenGrid[i][j]) {
+        newAutoMarked.push([i, j]);
+        return 1;
+      }
+
+      if (!shouldBeMarked && isMarked) {
+        newAutoCleared.push([i, j]);
+        return 0;
+      }
+
+      return val;
+    })
+  );
+
+  setUserGrid(updated);
+  setAutoMarkedCells(newAutoMarked);
+  setAutoClearedCells(newAutoCleared);
+  setManualSolve(false);
+  setMessage('📌 הפתרון סומן על הלוח.');
+  setSolutionShown(true);
+  setSolutionEverShown(true);
+};
 
   /**
    * Calculate the minimal number of moves in the solution.
@@ -385,10 +434,17 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
               <button onClick={handleHint}>💡 רמז</button>
             </div>
             <div className="solution-button-wrapper">
-              <button className="solution-button" onClick={showSolution}>הצג פתרון</button>
+              <button className="solution-button" onClick={showSolution}>
+                {solutionShown ? 'הסתר פתרון' : 'הצג פתרון'}
+              </button>
             </div>
-            {message && <p className="message">{message}</p>}
           </div>
+
+          {solutionEverShown && (
+            <p className="message" style={{ marginTop: '12px' }}>
+              📌 הפתרון סומן על הלוח.
+            </p>
+          )}
         </div>
       </div>
 

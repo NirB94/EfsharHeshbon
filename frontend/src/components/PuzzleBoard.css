@@ -14,6 +14,7 @@
  * - Responsive (mobile) adjustments
  * ================================================ */
 
+
 /* === Animations === */
 
 @keyframes fadeInScale {
@@ -25,6 +26,7 @@
   0% { background-color: #ff4444; }
   100% { background-color: transparent; }
 }
+
 
 /* === Puzzle Container === */
 
@@ -46,6 +48,7 @@
   align-items: center;
 }
 
+
 /* === Grid Cells === */
 
 .cell {
@@ -66,6 +69,7 @@
   color: #aaa;
   cursor: not-allowed;
 }
+
 .cell.forbidden::after {
   content: "×";
   position: absolute;
@@ -82,6 +86,7 @@
   animation: fadeRedToTransparent 1s ease forwards;
   position: relative;
 }
+
 
 /* === Row/Column Targets === */
 
@@ -115,6 +120,7 @@
 }
 
 .row-target { margin-left: 10px; }
+
 .col-target {
   font-size: 14px;
   text-align: center;
@@ -125,6 +131,7 @@
   height: 40px;
   margin: 2px;
 }
+
 
 /* === Controls === */
 
@@ -161,6 +168,15 @@
   width: 120px;
 }
 
+.message {
+  display: block;
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+  margin-top: 12px;
+}
+
+
 /* === Back Button === */
 
 .back-button {
@@ -185,6 +201,7 @@ body.dark .back-button {
   color: #eee;
 }
 
+
 /* === Dark Mode === */
 
 body.dark .modal { background: #1e1e2f; color: #fff; }
@@ -192,6 +209,7 @@ body.dark .modal p { color: #ccc; }
 body.dark .modal-close { color: #ccc; }
 body.dark .modal-close:hover { color: #fff; }
 body.dark .minimal-steps { color: #ffffff; }
+
 
 /* === Toggle Switch === */
 
@@ -250,6 +268,7 @@ body.dark .minimal-steps { color: #ffffff; }
   transform: translateX(22px);
 }
 
+
 /* === Modal === */
 
 .modal-overlay {
@@ -295,7 +314,8 @@ body.dark .minimal-steps { color: #ffffff; }
   color: #000;
 }
 
-/* === Blur effect when modal is active === */
+
+/* === Blur Effect === */
 
 .blurred {
   pointer-events: none;
@@ -303,7 +323,8 @@ body.dark .minimal-steps { color: #ffffff; }
   filter: blur(1px);
 }
 
-/* === Minimal steps (statistics indicator) === */
+
+/* === Minimal Steps Indicator === */
 
 .minimal-steps {
   font-size: 10px;
@@ -311,6 +332,7 @@ body.dark .minimal-steps { color: #ffffff; }
   font-weight: bold;
   color: #555;
 }
+
 
 /* === Responsive: Mobile View === */
 
@@ -354,4 +376,28 @@ body.dark .minimal-steps { color: #ffffff; }
     font-size: 18px !important;
     top: 6px !important;
   }
+}
+
+
+/* === Dark Mode: Better Target Text Colors === */
+
+body.dark .target {
+  background-color: transparent; /* Match board background */
+  color: #bbb; /* Light gray for readability */
+}
+
+body.dark .target.active {
+  color: #fff; /* White when target achieved */
+}
+
+body.dark .target.inactive {
+  color: #a4a4a4; /* Subtle gray when inactive */
+}
+
+body.dark .target-hint {
+  color: #a4a4a4;
+}
+
+body.dark .message {
+  color: #ccc;
 }
