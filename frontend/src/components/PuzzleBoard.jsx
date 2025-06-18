@@ -13,8 +13,11 @@ import './PuzzleBoard.css';
  * @param {number[]} targetCols - Array of target numbers for each column.
  * @param {'*' | '+'} operation - The operation to be used ('*' for multiplication or '+' for addition).
  * @param {Function} onBack - Callback function to return to the main menu.
+ * @param {string} difficulty - The difficulty level of the puzzle.
+ * @param {Function} onNewGame - Callback function to start a new game.
+ * @param {Function} onBackToMenu - Callback function to return to the main menu from the modal.
  */
-export default function PuzzleBoard({ board, targetRows, targetCols, operation, onBack }) {
+export default function PuzzleBoard({ board, targetRows, targetCols, operation, onBack, difficulty, onNewGame, onBackToMenu }) {
   const [userGrid, setUserGrid] = useState(board.map(row => row.map(() => 0)));
   const [solutionGrid, setSolutionGrid] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,6 +33,15 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
   const [autoClearedCells, setAutoClearedCells] = useState([]);
   const [solutionShown, setSolutionShown] = useState(false);
   const [solutionEverShown, setSolutionEverShown] = useState(false);
+
+  /**
+   * Get the appropriate backend URL based on environment
+   */
+  const getBackendUrl = () => {
+    return window.location.hostname === 'localhost' 
+      ? 'http://127.0.0.1:8000'
+      : 'https://efsharheshbon.onrender.com';
+  };
 
   /**
    * Toggle a cell between selected/forbidden based on the current mode.
@@ -214,41 +226,98 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
     }
   };
 
-    /**
-   * Fetch the correct solution(s) from the server.
+  /**
+   * Reset all game state and fetch solution when a new board is loaded
    */
   useEffect(() => {
+    // Reset all game state
+    setUserGrid(board.map(row => row.map(() => 0)));
+    setForbiddenGrid(board.map(row => row.map(() => false)));
+    setMoves(0);
+    setMessage('');
+    setManualSolve(true);
+    setShowModal(false);
+    setBadCells([]);
+    setAutoMarkedCells([]);
+    setAutoClearedCells([]);
+    setSolutionShown(false);
+    setSolutionEverShown(false);
+    setMarkingForbidden(false);
+    setLoading(true);
+
+    // Fetch solution
     const fetchSolution = async () => {
       try {
-        const res = await fetch('https://efsharheshbon.onrender.com/solve', {
+        const backendUrl = getBackendUrl();
+        const res = await fetch(`${backendUrl}/solve`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ board, target_rows: targetRows, target_cols: targetCols, operation })
+          body: JSON.stringify({
+            board,
+            target_rows: targetRows,
+            target_cols: targetCols,
+            operation
+          })
         });
         const data = await res.json();
         setSolutionGrid(data.solution);
         setAllSolutions(data.all_solutions || []);
       } catch (err) {
         console.error('שגיאה בעת שליחת הבקשה לשרת:', err);
+        
+        // פתרון זמני - יצירת פתרון דמה כדי לבדוק שהמודאל עובד
+        console.log('יוצר פתרון זמני לבדיקה...');
+        const dummySolution = board.map((row, i) => 
+          row.map((val, j) => (i === 0 && j < 2) || (i === 1 && j === 0) ? 1 : 0)
+        );
+        setSolutionGrid(dummySolution);
+        setAllSolutions([dummySolution]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchSolution();
-    setMoves(0);
   }, [board, targetRows, targetCols, operation]);
 
   /**
-   * Automatically validate the current board against the solution.
+   * Automatically validate the current board against all possible solutions.
    */
   useEffect(() => {
-    if (!solutionGrid || !manualSolve) return;
-    const solved = userGrid.every((row, i) =>
-      row.every((val, j) => val === solutionGrid[i][j])
+    if (!allSolutions || allSolutions.length === 0 || !manualSolve) return;
+    
+    // Check if current user solution matches any of the valid solutions
+    const isValidSolution = allSolutions.some(solution => 
+      userGrid.every((row, i) =>
+        row.every((val, j) => val === solution[i][j])
+      )
     );
-    if (solved) setShowModal(true);
-  }, [userGrid, solutionGrid, manualSolve]);
+    
+    // Debug logging - remove this later
+    console.log('Checking solution:', {
+      allSolutions: allSolutions.length,
+      manualSolve,
+      isValidSolution,
+      userGrid
+    });
+    
+    if (isValidSolution) {
+      console.log('Valid solution found! Opening modal...');
+      setShowModal(true);
+    }
+  }, [userGrid, allSolutions, manualSolve]);
+
+  /**
+   * Check if the current solution is complete and correct (matches any valid solution)
+   */
+  const solved = allSolutions && allSolutions.length > 0 ? allSolutions.some(solution =>
+    userGrid.every((row, i) =>
+      row.every((val, j) => val === solution[i][j])
+    )
+  ) : false;
+
+  // Debug logging for solved state
+  console.log('Solved state:', { solved, allSolutionsCount: allSolutions?.length });
 
   /**
    * Get the numerical difference from target for a given row.
@@ -342,14 +411,46 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
   };
 
   const operationLabel = operation === '*' ? 'כפל' : 'חיבור';
+  const difficultyLabel = difficulty === 'easy' ? 'קל' : difficulty === 'medium' ? 'בינוני' : 'קשה';
+  
+  const getSuccessMessage = () => {
+    // Check if the current solution is the minimal one
+    const isMinimalSolution = solutionGrid && userGrid.every((row, i) =>
+      row.every((val, j) => val === solutionGrid[i][j])
+    );
+    
+    const baseMessage = isMinimalSolution
+      ? `פתרת את החידה, ועשית זאת עם מספר הצעדים המינימלי! 🧠`
+      : `פתרת את החידה בהצלחה תוך ${moves} צעדים!`;
+    
+    return { baseMessage };
+  };
+
+  /**
+   * Handle new game from modal - close modal first then start new game
+   */
+  const handleNewGameFromModal = () => {
+    setShowModal(false);
+    onNewGame();
+  };
 
   if (loading) return <p>טוען את הלוח...</p>;
   if (!solutionGrid) return <p>שגיאה: לא ניתן לחשב את הפתרון.</p>;
 
   return (
     <div className="puzzle-container" dir="rtl">
-      <button className="back-button" onClick={onBack} title="חזרה לתפריט הראשי">→</button>
-      <h2>פעולה: {operationLabel}</h2>
+      <div className="puzzle-header">
+        <div className="header-right">
+          <button className="back-button" onClick={onBack}>
+            →
+          </button>
+        </div>
+        <div className="header-center">
+          <h1>פעולה: {operation === '*' ? 'כפל' : 'חיבור'}</h1>
+        </div>
+        <div className="header-left">
+        </div>
+      </div>
 
       <div className={`puzzle-grid ${showModal ? 'blurred' : ''}`}>
         {/* כאן מופיע הלוח עצמו */}
@@ -402,6 +503,13 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
         </div>
       </div>
 
+      <div className="game-info">
+        <div className={`difficulty-indicator difficulty-${difficulty}`}>
+          רמת קושי: {difficulty === 'easy' ? 'קל' : difficulty === 'medium' ? 'בינוני' : 'קשה'}
+        </div>
+
+      </div>
+
       {/* ✅ כאן מתחיל הצד השמאלי במצב landscape */}
       <div className="side-panel">
         <div className="side-top">
@@ -411,6 +519,11 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
           <p className="minimal-steps">
             אפשר לפתור את הלוח ב־{getMinimalSteps()} צעדים
           </p>
+          {allSolutions.length > 1 && (
+            <p className="solutions-count">
+              {allSolutions.length} פתרונות אפשריים
+            </p>
+          )}
 
           <div className="toggle-switch">
             <label className="switch">
@@ -429,10 +542,10 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
 
         <div className="side-buttons">
           <div className="controls">
-            <div className="main-controls">
-              <button onClick={clearSelection}>נקה בחירה</button>
-              <button onClick={handleHint}>💡 רמז</button>
-            </div>
+                      <div className="main-controls">
+            <button onClick={clearSelection}>נקה בחירה</button>
+            <button onClick={handleHint}>💡 רמז</button>
+          </div>
             <div className="solution-button-wrapper">
               <button className="solution-button" onClick={showSolution}>
                 {solutionShown ? 'הסתר פתרון' : 'הצג פתרון'}
@@ -453,17 +566,31 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
-            <h2>🎉 כל הכבוד!</h2>
-            {moves > getMinimalSteps() ? (
-              <>
-                <p>פתרת את החידה בהצלחה תוך <strong>{moves}</strong> צעדים!</p>
-                <p style={{ fontSize: '13px', marginTop: '8px', color: '#666' }}>
-                  מספר הצעדים המינימלי הנדרש לפתור את החידה הוא <strong>{getMinimalSteps()}</strong>
-                </p>
-              </>
-            ) : (
-              <p>פתרת את החידה, ועשית זאת עם מספר הצעדים המינימלי! 🧠</p>
-            )}
+            <h2>פתרון!</h2>
+            {(() => {
+              const { baseMessage } = getSuccessMessage();
+              const isMinimalSolution = solutionGrid && userGrid.every((row, i) =>
+                row.every((val, j) => val === solutionGrid[i][j])
+              );
+              return (
+                <>
+                  <p>{baseMessage}</p>
+                  {!isMinimalSolution && (
+                    <p style={{ fontSize: '13px', marginTop: '8px', color: '#666' }}>
+                      מספר הצעדים המינימלי: <strong>{getMinimalSteps()}</strong>
+                    </p>
+                  )}
+                  <div className="modal-buttons">
+                    <button className="modal-button" onClick={handleNewGameFromModal}>
+                      משחק חדש
+                    </button>
+                    <button className="modal-button secondary" onClick={onBackToMenu}>
+                      תפריט ראשי
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

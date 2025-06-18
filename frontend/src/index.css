@@ -130,6 +130,102 @@ body.dark .controls button:hover {
   background-color: #444;
 }
 
+/* Menu Styles */
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 20px;
+}
+
+.menu h1 {
+  font-size: 3em;
+  margin-bottom: 40px;
+  color: #333;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu h2 {
+  font-size: 2em;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.menu button {
+  padding: 15px 30px;
+  font-size: 18px;
+  background-color: #d2ecf3;
+  border: 2px solid #a2d3e4;
+  color: #222;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.menu button:hover {
+  background-color: #c2e4ef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.menu button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Operation and Difficulty Selectors */
+.operation-selector, .difficulty-selector {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.operation-selector button, .difficulty-selector button {
+  min-width: 150px;
+}
+
+/* Difficulty Options */
+.difficulty-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 200px;
+}
+
+.difficulty-description {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+body.dark .difficulty-description {
+  color: #aaa;
+}
+
+/* Dark mode for menu */
+body.dark .menu h1, body.dark .menu h2 {
+  color: #e0e0e0;
+}
+
+body.dark .menu button {
+  background-color: #2f3b52;
+  border-color: #666;
+  color: #eee;
+}
+
+body.dark .menu button:hover {
+  background-color: #3a4a65;
+}
+
 .theme-toggle {
   position: absolute;
   top: 10px;

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import core_logic as cl
 import operator
+from enum import Enum
 
 app = FastAPI()
 
@@ -23,11 +24,17 @@ class PuzzleRequest(BaseModel):
     target_cols: list[int]
     operation: str  # Either "*" or "+"
 
+class DifficultyLevel(str, Enum):
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
+
 class GameRequest(BaseModel):
     """
     Request body schema for the /new_game endpoint.
     """
     operation: str
+    difficulty: DifficultyLevel = DifficultyLevel.MEDIUM
 
 @app.post("/solve")
 def solve_puzzle(req: PuzzleRequest):
@@ -94,14 +101,20 @@ def new_game(request: GameRequest):
     Generate a new puzzle with a guaranteed valid and minimal solution.
 
     Args:
-        request (GameRequest): Requested operation ('*' or '+').
+        request (GameRequest): Requested operation ('*' or '+') and difficulty level.
 
     Returns:
         dict: Puzzle board and targets, including minimal solution if found.
     """
     operation = request.operation
+    difficulty = request.difficulty.value
+    
     for _ in range(20):
-        board, target_rows, target_cols, solution = cl.generate_board_from_solution(operation, size=5)
+        board, target_rows, target_cols, solution = cl.generate_board_from_solution(
+            operation, 
+            size=5,
+            difficulty=difficulty
+        )
         op = operator.mul if operation == "*" else operator.add
 
         row_possibilities = [
@@ -120,7 +133,67 @@ def new_game(request: GameRequest):
                 "operation": operation,
                 "solution": solution,
                 "minimal_solution": best_solution[1],
-                "marked_count": best_solution[0]
+                "marked_count": best_solution[0],
+                "difficulty": difficulty
             }
 
     return {"error": "Failed to generate a valid board. Please try again."}
+
+@app.get("/test_difficulty/{difficulty}")
+def test_difficulty(difficulty: str):
+    """
+    Test endpoint to verify difficulty generation is working correctly.
+    """
+    try:
+        operation = "*"
+        board, target_rows, target_cols, solution = cl.generate_board_from_solution(
+            operation, 
+            size=5,
+            difficulty=difficulty
+        )
+        
+        # Count single-cell rows
+        single_cell_count = sum(1 for row in solution if sum(row) == 1)
+        
+        # Calculate average target values
+        avg_row_target = sum(target_rows) / len(target_rows)
+        avg_col_target = sum(target_cols) / len(target_cols)
+        
+        # Define valid digits for analysis
+        valid_digits = list(range(2, 10)) if operation == '*' else list(range(1, 10))
+        
+        # Analyze factors for multiplication targets
+        factor_analysis = []
+        if operation == "*":
+            for target in target_rows + target_cols:
+                if target > 0:
+                    factors = [n for n in range(2, 10) if target % n == 0]
+                    factor_analysis.append({
+                        "target": target,
+                        "factor_count": len(factors),
+                        "factors": factors
+                    })
+        
+        # Calculate confusion score for hard difficulty
+        confusion_score = 0
+        if difficulty == "hard":
+            confusion_score = cl.evaluate_board_confusion(board, target_rows, target_cols, solution, valid_digits)
+        
+        return {
+            "difficulty": difficulty,
+            "operation": operation,
+            "board": board,
+            "target_rows": target_rows,
+            "target_cols": target_cols,
+            "solution": solution,
+            "single_cell_rows": single_cell_count,
+            "avg_row_target": round(avg_row_target, 2),
+            "avg_col_target": round(avg_col_target, 2),
+            "min_target": min(target_rows + target_cols),
+            "max_target": max(target_rows + target_cols),
+            "factor_analysis": factor_analysis,
+            "targets_with_many_factors": len([f for f in factor_analysis if f["factor_count"] >= 3]),
+            "confusion_score": confusion_score
+        }
+    except Exception as e:
+        return {"error": str(e)}

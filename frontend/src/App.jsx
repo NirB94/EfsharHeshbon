@@ -20,9 +20,20 @@ export default function App() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
-  const [screen, setScreen] = useState('menu'); // Possible values: 'menu', 'operation', 'board'
+  const [screen, setScreen] = useState('menu'); // Possible values: 'menu', 'operation', 'difficulty', 'board'
   const [puzzleData, setPuzzleData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [selectedOperation, setSelectedOperation] = useState(null);
+
+  /**
+   * Get the appropriate backend URL based on environment
+   */
+  const getBackendUrl = () => {
+    // Use localhost for development, production URL for deployment
+    return window.location.hostname === 'localhost' 
+      ? 'http://127.0.0.1:8000'
+      : 'https://efsharheshbon.onrender.com';
+  };
 
   /**
    * Apply theme changes to document body and store preference.
@@ -54,17 +65,18 @@ export default function App() {
   /**
    * Start a new game by requesting puzzle data from the backend.
    * @param {'+' | '*'} op - Operation to use for puzzle generation.
+   * @param {'easy' | 'medium' | 'hard'} difficulty - Difficulty level.
    */
-  const startGame = async (op) => {
+  const startGame = async (op, difficulty = 'medium') => {
     setLoading(true);
     try {
-      const backendUrl = 'https://efsharheshbon.onrender.com';
+      const backendUrl = getBackendUrl();
       const res = await fetch(`${backendUrl}/new_game`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ operation: op })
+        body: JSON.stringify({ operation: op, difficulty: difficulty })
       });
       const data = await res.json();
       if (data.error) {
@@ -77,6 +89,7 @@ export default function App() {
         targetRows: data.target_rows,
         targetCols: data.target_cols,
         operation: data.operation,
+        difficulty: data.difficulty
       });
       setScreen('board');
     } catch (e) {
@@ -87,9 +100,42 @@ export default function App() {
   };
 
   /**
+   * Handle operation selection and move to difficulty selection
+   */
+  const handleOperationSelect = (operation) => {
+    setSelectedOperation(operation);
+    setScreen('difficulty');
+  };
+
+  /**
+   * Handle difficulty selection and start the game
+   */
+  const handleDifficultySelect = (difficulty) => {
+    startGame(selectedOperation, difficulty);
+  };
+
+  /**
    * Return to the main menu and reset puzzle state.
    */
   const handleBack = () => {
+    setScreen('menu');
+    setPuzzleData(null);
+  };
+
+  /**
+   * Start a new game with the same operation and difficulty
+   */
+  const handleNewGame = () => {
+    if (puzzleData) {
+      setLoading(true);
+      startGame(puzzleData.operation, puzzleData.difficulty);
+    }
+  };
+
+  /**
+   * Go back to main menu from game
+   */
+  const handleBackToMenu = () => {
     setScreen('menu');
     setPuzzleData(null);
   };
@@ -127,16 +173,41 @@ export default function App() {
           </button>
           <h2 dir="rtl">בחר סוג משחק:</h2>
           <div className="operation-selector">
-            <button onClick={() => startGame('+')}>חיבור</button>
-            <button onClick={() => startGame('*')}>כפל</button>
+            <button onClick={() => handleOperationSelect('+')}>חיבור</button>
+            <button onClick={() => handleOperationSelect('*')}>כפל</button>
           </div>
         </div>
       )}
 
       {/* Loading screen */}
-      {screen === 'operation' && loading && (
+      {(screen === 'operation' || screen === 'difficulty') && loading && (
         <div className="menu">
           <p>לוח בטעינה...</p>
+        </div>
+      )}
+
+      {/* Difficulty selection screen */}
+      {screen === 'difficulty' && !loading && (
+        <div className="menu difficulty-menu" dir="rtl">
+          <button
+            className="back-button"
+            onClick={() => setScreen('operation')}
+            title="חזרה לבחירת סוג משחק"
+          >
+            →{/* אותו חץ */}
+          </button>
+          <h2 dir="rtl">בחר רמת קושי:</h2>
+          <div className="difficulty-options">
+            <div className="difficulty-option">
+              <button onClick={() => handleDifficultySelect('easy')}>קל</button>
+            </div>
+            <div className="difficulty-option">
+              <button onClick={() => handleDifficultySelect('medium')}>בינוני</button>
+            </div>
+            <div className="difficulty-option">
+              <button onClick={() => handleDifficultySelect('hard')}>קשה</button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -147,7 +218,10 @@ export default function App() {
           targetRows={puzzleData.targetRows}
           targetCols={puzzleData.targetCols}
           operation={puzzleData.operation}
+          difficulty={puzzleData.difficulty || 'medium'}
           onBack={handleBack}
+          onNewGame={handleNewGame}
+          onBackToMenu={handleBackToMenu}
         />
       )}
     </div>
