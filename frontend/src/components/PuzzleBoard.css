@@ -31,6 +31,7 @@
 /* === Puzzle Container === */
 
 .puzzle-container {
+  position: relative;
   text-align: center;
   margin-top: 20px;
   padding: 0;
@@ -69,19 +70,37 @@
   color: #333;
 }
 
+body.dark .header-center h1 {
+  color: #fff;
+}
+
 .back-button {
+  position: fixed;
+  top: 8px;
+  right: 8px;
   background: #f0f0f0;
   border: 1px solid #ddd;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 18px;
-  min-width: 40px;
+  font-size: 16px;
+  min-width: 32px;
   text-align: center;
+  z-index: 1000;
 }
 
 .back-button:hover {
   background: #e0e0e0;
+}
+
+body.dark .back-button {
+  background: #2f3b52;
+  border-color: #666;
+  color: #eee;
+}
+
+body.dark .back-button:hover {
+  background: #444;
 }
 
 
@@ -357,6 +376,78 @@ body.dark .minimal-steps { color: #ffffff; }
 }
 
 
+
+/* Remainder toggle button at top - positioned below theme toggle */
+.remainder-toggle-button-top {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  z-index: 100;
+}
+
+.remainder-toggle-button-top:hover {
+  background-color: #e8e8e8;
+  border-color: #bbb;
+  color: #333;
+}
+
+.remainder-toggle-button-top:active {
+  background-color: #ddd;
+  transform: scale(0.95);
+}
+
+/* Active state when remainders are shown */
+.remainder-toggle-button-top.active {
+  background-color: #d4e6f1;
+  border-color: #85c1e9;
+  color: #1b4f72;
+}
+
+.remainder-toggle-button-top.active:hover {
+  background-color: #aed6f1;
+  border-color: #5dade2;
+  color: #154360;
+}
+
+/* Dark mode for top remainder button */
+body.dark .remainder-toggle-button-top {
+  background-color: #2a2a2a;
+  border-color: #555;
+  color: #ccc;
+}
+
+body.dark .remainder-toggle-button-top:hover {
+  background-color: #333;
+  border-color: #777;
+  color: #fff;
+}
+
+body.dark .remainder-toggle-button-top.active {
+  background-color: #1e3a5f;
+  border-color: #2980b9;
+  color: #85c1e9;
+}
+
+body.dark .remainder-toggle-button-top.active:hover {
+  background-color: #2c5282;
+  border-color: #3498db;
+  color: #aed6f1;
+}
+
+
 /* === Modal === */
 
 .modal-overlay {
@@ -491,6 +582,20 @@ body.dark .difficulty-tip {
   .theme-toggle {
     font-size: 18px !important;
     top: 6px !important;
+  }
+
+  .remainder-toggle-button-top {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}
+
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .remainder-toggle-button-top {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
   }
 }
 

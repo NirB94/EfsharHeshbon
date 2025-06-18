@@ -178,6 +178,33 @@ body.dark .controls button:hover {
   box-shadow: none;
 }
 
+/* Back button in selection screens */
+.operation-menu .back-button,
+.difficulty-menu .back-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  min-width: 32px;
+  text-align: center;
+  z-index: 10;
+}
+
+.operation-menu .back-button:hover,
+.difficulty-menu .back-button:hover {
+  background: #e0e0e0;
+}
+
+.operation-menu,
+.difficulty-menu {
+  position: relative;
+}
+
 /* Operation and Difficulty Selectors */
 .operation-selector, .difficulty-selector {
   display: flex;
@@ -224,6 +251,18 @@ body.dark .menu button {
 
 body.dark .menu button:hover {
   background-color: #3a4a65;
+}
+
+body.dark .operation-menu .back-button,
+body.dark .difficulty-menu .back-button {
+  background: #2f3b52;
+  border-color: #666;
+  color: #eee;
+}
+
+body.dark .operation-menu .back-button:hover,
+body.dark .difficulty-menu .back-button:hover {
+  background: #444;
 }
 
 .theme-toggle {

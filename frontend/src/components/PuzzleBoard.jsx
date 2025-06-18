@@ -33,6 +33,7 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
   const [autoClearedCells, setAutoClearedCells] = useState([]);
   const [solutionShown, setSolutionShown] = useState(false);
   const [solutionEverShown, setSolutionEverShown] = useState(false);
+  const [showRemainders, setShowRemainders] = useState(false);
 
   /**
    * Get the appropriate backend URL based on environment
@@ -439,16 +440,22 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
 
   return (
     <div className="puzzle-container" dir="rtl">
+      <button className="back-button" onClick={onBack}>
+        →
+      </button>
+      
+      {/* כפתור השאריות */}
+      <button
+        className={`remainder-toggle-button-top ${showRemainders ? 'active' : ''}`}
+        onClick={() => setShowRemainders(!showRemainders)}
+        title={showRemainders ? "הסתר שאריות" : "הצג שאריות"}
+      >
+        (1)
+      </button>
+      
       <div className="puzzle-header">
-        <div className="header-right">
-          <button className="back-button" onClick={onBack}>
-            →
-          </button>
-        </div>
         <div className="header-center">
           <h1>פעולה: {operation === '*' ? 'כפל' : 'חיבור'}</h1>
-        </div>
-        <div className="header-left">
         </div>
       </div>
 
@@ -476,10 +483,10 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
             <div
               className={`target row-target ${
                 isRowActive(i) ? 'active' : isRowOver(i) ? 'error' : 'inactive'
-              } ${!isRowActive(i) && getRowStatus(i) !== null && !isRowOver(i) ? 'compact' : ''}`}
+              } ${!isRowActive(i) && getRowStatus(i) !== null && !isRowOver(i) && showRemainders ? 'compact' : ''}`}
             >
               <div>{targetRows[i]}</div>
-              {!isRowActive(i) && !isRowOver(i) && getRowStatus(i) !== null && (
+              {!isRowActive(i) && !isRowOver(i) && getRowStatus(i) !== null && showRemainders && (
                 <div className="target-hint">({getRowStatus(i)})</div>
               )}
             </div>
@@ -491,10 +498,10 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
               key={`col-${j}`}
               className={`target col-target ${
                 isColActive(j) ? 'active' : isColOver(j) ? 'error' : 'inactive'
-              } ${!isColActive(j) && getColStatus(j) !== null && !isColOver(j) ? 'compact' : ''}`}
+              } ${!isColActive(j) && getColStatus(j) !== null && !isColOver(j) && showRemainders ? 'compact' : ''}`}
             >
               <div>{targetCols[j]}</div>
-              {!isColActive(j) && !isColOver(j) && getColStatus(j) !== null && (
+              {!isColActive(j) && !isColOver(j) && getColStatus(j) !== null && showRemainders && (
                 <div className="target-hint">({getColStatus(j)})</div>
               )}
             </div>
