@@ -2,6 +2,7 @@ from fastapi import FastAPI, Query
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import core_logic as cl
+import manual_input as mi
 import operator
 from enum import Enum
 
@@ -35,6 +36,15 @@ class GameRequest(BaseModel):
     """
     operation: str
     difficulty: DifficultyLevel = DifficultyLevel.MEDIUM
+
+class ManualInputRequest(BaseModel):
+    """
+    Request body schema for the /solve_manual endpoint.
+    """
+    board: list[list[int]]
+    target_rows: list[int]
+    target_cols: list[int]
+    operation: str  # Either "*" or "+"
 
 @app.post("/solve")
 def solve_puzzle(req: PuzzleRequest):
@@ -197,3 +207,52 @@ def test_difficulty(difficulty: str):
         }
     except Exception as e:
         return {"error": str(e)}
+
+@app.post("/solve_manual")
+def solve_manual_puzzle(req: ManualInputRequest):
+    """
+    Solve a manually entered puzzle and return the optimal solution.
+    
+    Args:
+        req (ManualInputRequest): Manual puzzle including board, targets, and operation.
+        
+    Returns:
+        dict: {
+            "success": bool,
+            "optimal_solution": grid with minimal marks (or None),
+            "marked_count": number of selected cells in optimal solution,
+            "total_solutions": number of total solutions found,
+            "validation_errors": list of validation errors (if any),
+            "solution_stats": statistics about all solutions found
+        }
+    """
+    try:
+        result = mi.solve_manual_puzzle(
+            req.board, 
+            req.target_rows, 
+            req.target_cols, 
+            req.operation
+        )
+        
+        # Add solution statistics if solutions were found
+        if result["success"] and result["all_solutions"]:
+            result["solution_stats"] = mi.get_solution_stats(result["all_solutions"])
+        else:
+            result["solution_stats"] = mi.get_solution_stats([])
+        
+        # Keep all_solutions for navigation in frontend
+        # result.pop("all_solutions", None)
+        
+        print(f"Backend returning: success={result.get('success')}, total_solutions={result.get('total_solutions')}, all_solutions_length={len(result.get('all_solutions', []))}")
+        
+        return result
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "optimal_solution": None,
+            "marked_count": 0,
+            "total_solutions": 0,
+            "validation_errors": [f"שגיאה פנימית: {str(e)}"],
+            "solution_stats": mi.get_solution_stats([])
+        }

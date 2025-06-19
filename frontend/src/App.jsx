@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Menu from './components/Menu.jsx';
 import PuzzleBoard from './components/PuzzleBoard.jsx';
+import ManualInput from './components/ManualInput.jsx';
 import './MobileAdjustments.css';
 
 /**
@@ -20,7 +21,7 @@ export default function App() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
-  const [screen, setScreen] = useState('menu'); // Possible values: 'menu', 'operation', 'difficulty', 'board'
+  const [screen, setScreen] = useState('menu'); // Possible values: 'menu', 'operation', 'difficulty', 'board', 'manual'
   const [puzzleData, setPuzzleData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState(null);
@@ -44,21 +45,28 @@ export default function App() {
   }, [dark]);
 
   /**
-   * Load a predefined board and switch to game screen.
+   * Handle manual input selection
    */
-  const handleStartPredefined = () => {
-    const board = [
-      [9, 3, 3, 9, 2],
-      [3, 3, 8, 4, 3],
-      [3, 9, 8, 3, 3],
-      [5, 3, 2, 4, 2],
-      [3, 8, 4, 4, 6]
-    ];
-    const targetRows = [18, 72, 27, 24, 96];
-    const targetCols = [81, 72, 32, 12, 36];
-    const operation = '*';
+  const handleManualInput = () => {
+    setScreen('manual');
+  };
 
-    setPuzzleData({ board, targetRows, targetCols, operation });
+  /**
+   * Handle manual puzzle solve result
+   */
+  const handleManualSolve = (data) => {
+    setPuzzleData({
+      board: data.board,
+      targetRows: data.targetRows,
+      targetCols: data.targetCols,
+      operation: data.operation,
+      solution: data.solution,
+      markedCount: data.markedCount,
+      totalSolutions: data.totalSolutions,
+      solutionStats: data.solutionStats,
+      isManual: true,
+      fromManualInput: data.fromManualInput || false
+    });
     setScreen('board');
   };
 
@@ -140,6 +148,14 @@ export default function App() {
     setPuzzleData(null);
   };
 
+  /**
+   * Go back to manual input from puzzle board
+   */
+  const handleBackToManualInput = () => {
+    setScreen('manual');
+    // Keep puzzle data for returning to the same state - it will be passed to ManualInput
+  };
+
   return (
     <div className="App">
       {/* Theme toggle button */}
@@ -157,7 +173,7 @@ export default function App() {
         <div className="menu">
           <h1>אפשר חשבון</h1>
           <button onClick={() => setScreen('operation')}>משחק חדש</button>
-          <button onClick={handleStartPredefined}>חידה לדוגמה</button>
+          <button onClick={handleManualInput}>הכנסה ידנית</button>
         </div>
       )}
 
@@ -211,6 +227,15 @@ export default function App() {
         </div>
       )}
 
+      {/* Manual input screen */}
+      {screen === 'manual' && (
+        <ManualInput
+          onBack={() => setScreen('menu')}
+          onSolve={handleManualSolve}
+          existingPuzzleData={puzzleData}
+        />
+      )}
+
       {/* Puzzle board screen */}
       {screen === 'board' && puzzleData && (
         <PuzzleBoard
@@ -219,7 +244,10 @@ export default function App() {
           targetCols={puzzleData.targetCols}
           operation={puzzleData.operation}
           difficulty={puzzleData.difficulty || 'medium'}
-          onBack={handleBack}
+          solution={puzzleData.solution}
+          isManual={puzzleData.isManual}
+          fromManualInput={puzzleData.fromManualInput}
+          onBack={puzzleData.fromManualInput ? handleBackToManualInput : handleBack}
           onNewGame={handleNewGame}
           onBackToMenu={handleBackToMenu}
         />
