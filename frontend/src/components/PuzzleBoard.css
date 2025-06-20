@@ -189,6 +189,8 @@ body.dark .difficulty-message {
   margin: 2px;
   font-size: 16px;
   cursor: pointer;
+  border: 2px solid #000;
+  background-color: #fff;
 }
 
 .cell.marked {
@@ -231,6 +233,7 @@ body.dark .difficulty-message {
   background-color: #f0f0f0;
   color: lightgray;
   text-align: center;
+  border: 2px solid #000;
 }
 
 .target.active { color: black; }
@@ -262,6 +265,8 @@ body.dark .difficulty-message {
   width: 40px;
   height: 40px;
   margin: 2px;
+  border: 2px solid #000;
+  background-color: #f0f0f0;
 }
 
 
@@ -603,20 +608,36 @@ body.dark .difficulty-tip {
 /* === Dark Mode: Better Target Text Colors === */
 
 body.dark .target {
-  background-color: transparent; /* Match board background */
-  color: #bbb; /* Light gray for readability */
+  background-color: #2a2a2a;
+  color: #bbb;
+  border-color: #555;
 }
 
 body.dark .target.active {
-  color: #fff; /* White when target achieved */
+  color: #fff;
 }
 
 body.dark .target.inactive {
-  color: #a4a4a4; /* Subtle gray when inactive */
+  color: #a4a4a4;
 }
 
 body.dark .target-hint {
   color: #a4a4a4;
+}
+
+body.dark .cell {
+  background-color: #2a2a2a;
+  border-color: #555;
+  color: #fff;
+}
+
+body.dark .cell.marked {
+  background-color: #4a6fa5;
+}
+
+body.dark .corner {
+  background-color: #2a2a2a;
+  border-color: #555;
 }
 
 body.dark .message {

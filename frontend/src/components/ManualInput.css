@@ -125,13 +125,13 @@ body.dark .toggle-option.active {
 .board-row {
   display: grid;
   grid-template-columns: repeat(5, 50px) 50px;
-  gap: 5px;
+  gap: 9px;
 }
 
 .col-targets {
   display: grid;
   grid-template-columns: repeat(5, 50px);
-  gap: 5px;
+  gap: 9px;
   margin-top: 5px;
 }
 
@@ -143,15 +143,15 @@ body.dark .toggle-option.active {
 .board-cell, .target-input {
   width: 50px;
   height: 50px;
-  border: 2px solid var(--border-color);
+  border: 1px solid #000;
   border-radius: 6px;
   text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
-  background: var(--background-color);
-  color: var(--text-color);
+  background: #fff;
+  color: #000;
   transition: border-color 0.2s ease;
-  direction: ltr; /* Ensure input direction is LTR */
+  direction: ltr;
 }
 
 .board-cell:focus, .target-input:focus {
@@ -175,13 +175,13 @@ body.dark .toggle-option.active {
 
 /* Dark mode adjustments */
 body.dark .col-target {
-  background: #1a237e;
-  color: white;
+  background: #e3f2fdf3 !important;
+  color: #000 !important;
 }
 
 body.dark .row-target {
-  background: #4a148c;
-  color: white;
+  background: #f3e5f5ec !important;
+  color: #000 !important;
 }
 
 /* Error messages */
@@ -324,15 +324,15 @@ body.dark .error-messages li {
 .board-cell-display {
   width: 50px;
   height: 50px;
-  border: 2px solid var(--border-color);
+  border: 1px solid #000;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
   font-weight: bold;
-  background: var(--background-color);
-  color: var(--text-color);
+  background: #fff;
+  color: #000;
 }
 
 .board-cell-display.marked {
@@ -345,15 +345,15 @@ body.dark .error-messages li {
 .target-display {
   width: 50px;
   height: 50px;
-  border: 2px solid var(--border-color);
+  border: 1px solid #000;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
   font-weight: bold;
-  background: var(--secondary-background);
-  color: var(--text-color);
+  background: #f0f0f0;
+  color: #000;
 }
 
 .target-display.col-target {
@@ -365,13 +365,35 @@ body.dark .error-messages li {
 }
 
 body.dark .target-display.col-target {
-  background: #1a237e;
-  color: white;
+  background: #e3f2fd !important;
+  color: #000 !important;
+  border-color: #666;
 }
 
 body.dark .target-display.row-target {
-  background: #4a148c;
-  color: white;
+  background: #f3e5f5 !important;
+  color: #000 !important;
+  border-color: #666;
+}
+
+/* Dark mode for board cells and general targets */
+body.dark .board-cell,
+body.dark .target-input {
+  background: #ffffff11;
+  color: #ffffff;
+  border-color: #999;
+}
+
+body.dark .board-cell-display {
+  background: #666;
+  color: #fff;
+  border-color: #999;
+}
+
+body.dark .target-display {
+  background: #666;
+  color: #fff;
+  border-color: #999;
 }
 
 .solution-display {

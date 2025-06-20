@@ -267,7 +267,7 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
         console.error('שגיאה בעת שליחת הבקשה לשרת:', err);
         
         // פתרון זמני - יצירת פתרון דמה כדי לבדוק שהמודאל עובד
-        console.log('יוצר פתרון זמני לבדיקה...');
+  
         const dummySolution = board.map((row, i) => 
           row.map((val, j) => (i === 0 && j < 2) || (i === 1 && j === 0) ? 1 : 0)
         );
@@ -294,16 +294,7 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
       )
     );
     
-    // Debug logging - remove this later
-    console.log('Checking solution:', {
-      allSolutions: allSolutions.length,
-      manualSolve,
-      isValidSolution,
-      userGrid
-    });
-    
     if (isValidSolution) {
-      console.log('Valid solution found! Opening modal...');
       setShowModal(true);
     }
   }, [userGrid, allSolutions, manualSolve]);
@@ -317,8 +308,7 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
     )
   ) : false;
 
-  // Debug logging for solved state
-  console.log('Solved state:', { solved, allSolutionsCount: allSolutions?.length });
+
 
   /**
    * Get the numerical difference from target for a given row.
@@ -415,10 +405,10 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
   const difficultyLabel = difficulty === 'easy' ? 'קל' : difficulty === 'medium' ? 'בינוני' : 'קשה';
   
   const getSuccessMessage = () => {
-    // Check if the current solution is the minimal one
-    const isMinimalSolution = solutionGrid && userGrid.every((row, i) =>
-      row.every((val, j) => val === solutionGrid[i][j])
-    );
+    const minimalSteps = getMinimalSteps();
+    
+    // Check if user used exactly the minimal number of moves (not just final cell count)
+    const isMinimalSolution = minimalSteps && moves === minimalSteps;
     
     const baseMessage = isMinimalSolution
       ? `פתרת את החידה, ועשית זאת עם מספר הצעדים המינימלי! 🧠`
@@ -576,9 +566,10 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
             <h2>פתרון!</h2>
             {(() => {
               const { baseMessage } = getSuccessMessage();
-              const isMinimalSolution = solutionGrid && userGrid.every((row, i) =>
-                row.every((val, j) => val === solutionGrid[i][j])
-              );
+              
+              const minimalSteps = getMinimalSteps();
+              const isMinimalSolution = minimalSteps && moves === minimalSteps;
+              
               return (
                 <>
                   <p>{baseMessage}</p>

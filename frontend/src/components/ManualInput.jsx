@@ -205,15 +205,7 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
       setShowResults(true);
       setCurrentSolutionIndex(0);
       
-      console.log('=== BACKEND RESPONSE ===');
-      console.log('Full result object:', result);
-      console.log('result.all_solutions exists?', 'all_solutions' in result);
-      console.log('result.all_solutions:', result.all_solutions);
-      console.log('result.all_solutions length:', result.all_solutions ? result.all_solutions.length : 'undefined');
-      console.log('=== PROCESSED RESULT DATA ===');
-      console.log('Results set:', resultData);
-      console.log('resultData.allSolutions:', resultData.allSolutions);
-      console.log('resultData.allSolutions length:', resultData.allSolutions ? resultData.allSolutions.length : 'undefined');
+      
       
     } catch (error) {
       setErrors(['שגיאה בחיבור לשרת']);
@@ -331,8 +323,7 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
       {showResults && solveResults ? (
         // Results view
         <div className="results-view">
-          {/* Debug info */}
-          {console.log('Rendering results, showResults:', showResults, 'solveResults:', solveResults)}
+
           <div className="results-summary">
             <h3>סיכום הפתרון:</h3>
             <p><strong>פעולה:</strong> {solveResults.operation === '*' ? 'כפל' : 'חיבור'}</p>
@@ -347,13 +338,8 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
           </div>
 
           <div className="results-grid">
-            {console.log('allSolutions:', solveResults.allSolutions, 'length:', solveResults.allSolutions?.length)}
-            
             <div className="solution-display">
               {/* Left arrow for navigation */}
-              {console.log('Arrow condition check:', solveResults.allSolutions?.length, 'should show arrows:', solveResults.allSolutions && solveResults.allSolutions.length > 1)}
-              {console.log('Current solution index:', currentSolutionIndex)}
-              {console.log('All solutions array:', solveResults.allSolutions)}
               {solveResults.allSolutions && solveResults.allSolutions.length > 1 && (
                 <button 
                   className="nav-arrow nav-arrow-left"
@@ -459,7 +445,6 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
               min="1"
               value={targetRows[rowIndex]}
               onChange={(e) => handleRowTargetChange(rowIndex, e.target.value)}
-              placeholder="יעד"
               className="target-input row-target"
             />
           </div>
@@ -474,7 +459,6 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
               min="1"
               value={target}
               onChange={(e) => handleColTargetChange(index, e.target.value)}
-              placeholder="יעד"
               className="target-input col-target"
             />
           ))}
