@@ -42,6 +42,7 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
   // Loading and error states
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [errorCells, setErrorCells] = useState(new Set()); // Track cells with errors
   
   // Results state
   const [showResults, setShowResults] = useState(false);
@@ -73,6 +74,12 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     const newBoard = [...board];
     newBoard[row][col] = value;
     setBoard(newBoard);
+    
+    // Clear errors when user starts typing
+    if (errors.length > 0) {
+      setErrors([]);
+      setErrorCells(new Set());
+    }
   };
 
   /**
@@ -82,6 +89,12 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     const newTargets = [...targetRows];
     newTargets[index] = value;
     setTargetRows(newTargets);
+    
+    // Clear errors when user starts typing
+    if (errors.length > 0) {
+      setErrors([]);
+      setErrorCells(new Set());
+    }
   };
 
   /**
@@ -91,26 +104,45 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     const newTargets = [...targetCols];
     newTargets[index] = value;
     setTargetCols(newTargets);
+    
+    // Clear errors when user starts typing
+    if (errors.length > 0) {
+      setErrors([]);
+      setErrorCells(new Set());
+    }
   };
 
   /**
    * Validate input before sending to backend
    */
   const validateInput = () => {
-    const validationErrors = [];
+    const errorTypes = {
+      emptyCells: [],
+      invalidRangeMultiply: [],
+      invalidRangeAdd: [],
+      invalidRowTargets: [],
+      invalidColTargets: []
+    };
+    
+    const errorCellsSet = new Set();
     
     // Check if all board cells are filled
     for (let i = 0; i < 5; i++) {
       for (let j = 0; j < 5; j++) {
         const value = board[i][j];
+        const cellKey = `board-${i}-${j}`;
+        
         if (value === '' || isNaN(value)) {
-          validationErrors.push(`תא בשורה ${i+1}, עמודה ${j+1} חייב להכיל מספר`);
+          errorTypes.emptyCells.push({ row: i, col: j });
+          errorCellsSet.add(cellKey);
         } else {
           const num = parseInt(value);
           if (operation === '*' && (num < 2 || num > 9)) {
-            validationErrors.push(`ערך בשורה ${i+1}, עמודה ${j+1} חייב להיות בין 2-9 עבור כפל`);
+            errorTypes.invalidRangeMultiply.push({ row: i, col: j, value: num });
+            errorCellsSet.add(cellKey);
           } else if (operation === '+' && (num < 1 || num > 9)) {
-            validationErrors.push(`ערך בשורה ${i+1}, עמודה ${j+1} חייב להיות בין 1-9 עבור חיבור`);
+            errorTypes.invalidRangeAdd.push({ row: i, col: j, value: num });
+            errorCellsSet.add(cellKey);
           }
         }
       }
@@ -120,7 +152,8 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     for (let i = 0; i < 5; i++) {
       const value = targetRows[i];
       if (value === '' || isNaN(value) || parseInt(value) <= 0) {
-        validationErrors.push(`יעד שורה ${i+1} חייב להיות מספר חיובי`);
+        errorTypes.invalidRowTargets.push(i);
+        errorCellsSet.add(`row-target-${i}`);
       }
     }
     
@@ -128,11 +161,35 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     for (let i = 0; i < 5; i++) {
       const value = targetCols[i];
       if (value === '' || isNaN(value) || parseInt(value) <= 0) {
-        validationErrors.push(`יעד עמודה ${i+1} חייב להיות מספר חיובי`);
+        errorTypes.invalidColTargets.push(i);
+        errorCellsSet.add(`col-target-${i}`);
       }
     }
     
-    return validationErrors;
+    // Generate user-friendly error messages
+    const errorMessages = [];
+    
+    if (errorTypes.emptyCells.length > 0) {
+      errorMessages.push('יש תאים ריקים בלוח - אנא מלא את כל התאים במספרים');
+    }
+    
+    if (errorTypes.invalidRangeMultiply.length > 0) {
+      errorMessages.push('עבור כפל, כל המספרים בלוח חייבים להיות בין 2-9');
+    }
+    
+    if (errorTypes.invalidRangeAdd.length > 0) {
+      errorMessages.push('עבור חיבור, כל המספרים בלוח חייבים להיות בין 1-9');
+    }
+    
+    if (errorTypes.invalidRowTargets.length > 0) {
+      errorMessages.push('יעדי השורות חייבים להיות מספרים חיוביים');
+    }
+    
+    if (errorTypes.invalidColTargets.length > 0) {
+      errorMessages.push('יעדי העמודות חייבים להיות מספרים חיוביים');
+    }
+    
+    return { errorMessages, errorCells: errorCellsSet };
   };
 
   /**
@@ -161,9 +218,10 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     setErrors([]);
     
     // Validate input
-    const validationErrors = validateInput();
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
+    const validationResult = validateInput();
+    if (validationResult.errorMessages.length > 0) {
+      setErrors(validationResult.errorMessages);
+      setErrorCells(validationResult.errorCells);
       return;
     }
     
@@ -222,6 +280,7 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     setTargetRows(Array(5).fill(''));
     setTargetCols(Array(5).fill(''));
     setErrors([]);
+    setErrorCells(new Set());
     setShowResults(false);
     setSolveResults(null);
   };
@@ -232,6 +291,7 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
   const handleBackToEdit = () => {
     setShowResults(false);
     setErrors([]);
+    setErrorCells(new Set());
     setCurrentSolutionIndex(0);
   };
 
@@ -283,29 +343,59 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
   /**
    * Handle "Try it yourself" - send puzzle data for manual solving
    */
-  const handleTryYourself = () => {
+  const handleTryYourself = async () => {
     // Validate input first
-    const validationErrors = validateInput();
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
+    const validationResult = validateInput();
+    if (validationResult.errorMessages.length > 0) {
+      setErrors(validationResult.errorMessages);
+      setErrorCells(validationResult.errorCells);
       return;
     }
 
-    const requestData = prepareDataForBackend();
-    const puzzleData = {
-      board: requestData.board,
-      targetRows: requestData.target_rows,
-      targetCols: requestData.target_cols,
-      operation: requestData.operation,
-      solution: null, // No solution provided - user will solve manually
-      markedCount: 0,
-      totalSolutions: 0,
-      solutionStats: null,
-      allSolutions: [],
-      fromManualInput: true // Flag to indicate this came from manual input
-    };
+    setLoading(true);
     
-    onSolve(puzzleData);
+    try {
+      const backendUrl = getBackendUrl();
+      const requestData = prepareDataForBackend();
+      
+      // Check if the puzzle has a solution before proceeding
+      const response = await fetch(`${backendUrl}/solve_manual`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        // Show validation errors instead of navigating to a new screen
+        setErrors(result.validation_errors || ['הלוח שהזנת אינו חוקי או שאין לו פתרון']);
+        return;
+      }
+      
+      // If puzzle has a solution, proceed to the game screen
+      const puzzleData = {
+        board: requestData.board,
+        targetRows: requestData.target_rows,
+        targetCols: requestData.target_cols,
+        operation: requestData.operation,
+        solution: null, // No solution provided - user will solve manually
+        markedCount: 0,
+        totalSolutions: result.total_solutions,
+        solutionStats: result.solution_stats,
+        allSolutions: result.all_solutions || [],
+        fromManualInput: true // Flag to indicate this came from manual input
+      };
+      
+      onSolve(puzzleData);
+      
+    } catch (error) {
+      setErrors(['שגיאה בחיבור לשרת']);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -413,7 +503,14 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
           <span className="operation-label">פעולה:</span>
           <div 
             className="operation-toggle-switch"
-            onClick={() => setOperation(operation === '*' ? '+' : '*')}
+            onClick={() => {
+              setOperation(operation === '*' ? '+' : '*');
+              // Clear errors when operation changes
+              if (errors.length > 0) {
+                setErrors([]);
+                setErrorCells(new Set());
+              }
+            }}
           >
             <div className="toggle-options">
               <span className={`toggle-option ${operation === '+' ? 'active' : ''}`}>חיבור (+)</span>
@@ -437,7 +534,7 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
                 max="9"
                 value={cell}
                 onChange={(e) => handleBoardChange(rowIndex, colIndex, e.target.value)}
-                className="board-cell"
+                className={`board-cell ${errorCells.has(`board-${rowIndex}-${colIndex}`) ? 'error-cell' : ''}`}
               />
             ))}
             <input
@@ -445,7 +542,7 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
               min="1"
               value={targetRows[rowIndex]}
               onChange={(e) => handleRowTargetChange(rowIndex, e.target.value)}
-              className="target-input row-target"
+              className={`target-input row-target ${errorCells.has(`row-target-${rowIndex}`) ? 'error-cell' : ''}`}
             />
           </div>
         ))}
@@ -459,9 +556,10 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
               min="1"
               value={target}
               onChange={(e) => handleColTargetChange(index, e.target.value)}
-              className="target-input col-target"
+              className={`target-input col-target ${errorCells.has(`col-target-${index}`) ? 'error-cell' : ''}`}
             />
           ))}
+          <div className="empty-corner"></div>
         </div>
       </div>
 

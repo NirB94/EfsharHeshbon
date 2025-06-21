@@ -267,6 +267,7 @@ body.dark .difficulty-message {
   margin: 2px;
   border: 2px solid #000;
   background-color: #f0f0f0;
+  visibility: hidden;
 }
 
 
@@ -673,4 +674,58 @@ body.dark .message {
 
 .modal-button.secondary:hover {
   background: #555;
+}
+
+/* Error container styles */
+.error-container {
+  text-align: center;
+  padding: 40px 20px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.error-container h2 {
+  color: #d32f2f;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.error-container p {
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.back-to-input-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 20px;
+}
+
+.back-to-input-button:hover {
+  background: #0056b3;
+}
+
+/* Dark mode adjustments for error container */
+body.dark .error-container h2 {
+  color: #ffcdd2;
+}
+
+body.dark .error-container p {
+  color: var(--text-color);
+}
+
+/* Loading screen styles */
+.puzzle-container p {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-top: 50px;
+  color: var(--text-color);
 }

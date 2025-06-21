@@ -425,8 +425,30 @@ export default function PuzzleBoard({ board, targetRows, targetCols, operation, 
     onNewGame();
   };
 
-  if (loading) return <p>טוען את הלוח...</p>;
-  if (!solutionGrid) return <p>שגיאה: לא ניתן לחשב את הפתרון.</p>;
+  if (loading) return (
+    <div className="puzzle-container" dir="rtl">
+      <button className="back-button" onClick={onBack}>
+        →
+      </button>
+      <p>טוען את הלוח...</p>
+    </div>
+  );
+  
+  if (!solutionGrid) return (
+    <div className="puzzle-container" dir="rtl">
+      <button className="back-button" onClick={onBack}>
+        →
+      </button>
+      <div className="error-container">
+        <h2>שגיאה</h2>
+        <p>לא ניתן לחשב את הפתרון עבור הלוח שהוזן.</p>
+        <p>יתכן שהלוח אינו חוקי או שאין לו פתרון.</p>
+        <button className="back-to-input-button" onClick={onBack}>
+          חזור לעריכת הלוח
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="puzzle-container" dir="rtl">
