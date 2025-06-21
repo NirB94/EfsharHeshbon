@@ -40,8 +40,7 @@ This app was developed as a way to:
 
 ## Coming Soon
 
-- 📤 Puzzle export and sharing  
-- 🧩 Puzzle editor to create and test your own grids  
+- ©️ Further development of this project is paused due to potential copyright considerations.
 
 ---
 
