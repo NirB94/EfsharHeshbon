@@ -1,4 +1,28 @@
 @media (max-width: 500px) {
+  body {
+    overflow: hidden !important;
+  }
+
+  .puzzle-container {
+    height: 100vh !important;
+    overflow: hidden !important;
+    padding: 10px !important;
+  }
+
+  .puzzle-grid {
+    margin-left: 40px !important;
+    margin-right: 0px !important;
+    margin-top: 5px !important;
+  }
+
+  .game-info {
+    margin-top: 5px !important;
+  }
+
+  .side-panel {
+    margin-top: 5px !important;
+  }
+
   .cell {
     width: 48px !important;
     height: 48px !important;
@@ -68,10 +92,6 @@
     padding: 6px 10px !important;
   }
 
-  .puzzle-container {
-    padding: 10px !important;
-  }
-
 
 }
 
@@ -119,11 +139,11 @@
     display: flex !important;
     flex-direction: row !important;
     height: 100vh !important;
-    padding-top: 45px !important; /* מקום לכותרת */
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    padding-top: 35px !important; /* מקום לכותרת */
+    padding-left: 10px !important;
+    padding-right: 10px !important;
     box-sizing: border-box !important;
-    gap: 25px !important;
+    gap: 15px !important;
     align-items: flex-start !important;
     justify-content: center !important;
   }
@@ -131,8 +151,8 @@
   /* הלוח - בצד ימין */
   .puzzle-grid {
     flex-shrink: 0 !important;
-    margin: -10px 0 0 35px !important;
-    transform: scale(0.9) !important;
+    margin: -15px 0 0 25px !important;
+    transform: scale(0.85) !important;
     transform-origin: center !important;
   }
 
@@ -142,14 +162,14 @@
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 10px !important;
-    width: 230px !important;
+    gap: 0px !important;
+    width: 220px !important;
     height: auto !important;
-    max-height: 75vh !important;
+    max-height: 85vh !important;
     overflow-y: auto !important;
-    padding: 5px 10px !important;
+    padding: 1px 6px !important;
     box-sizing: border-box !important;
-    margin-top: 5px !important;
+    margin-top: 0px !important;
   }
 
   /* מידע נוסף - מסתיר את המקורי */
@@ -162,72 +182,70 @@
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 6px !important;
-    margin-bottom: 8px !important;
+    gap: 0px !important;
+    margin-bottom: 0px !important;
   }
 
   /* מוסיף את רמת הקושי בתחילת side-top */
   .side-top::before {
     content: "רמת קושי: קשה" !important;
-    font-size: 11px !important;
-    padding: 3px 8px !important;
+    font-size: 10px !important;
+    padding: 1px 4px !important;
     background-color: #ffebee !important;
     color: #c62828 !important;
     border: 1px solid #f44336 !important;
-    border-radius: 15px !important;
-    margin-bottom: 6px !important;
+    border-radius: 10px !important;
+    margin-bottom: 0px !important;
     font-weight: bold !important;
     display: block !important;
   }
 
   .side-top p {
     margin: 0 !important;
-    font-size: 13px !important;
+    font-size: 11px !important;
     text-align: center !important;
-    line-height: 1.3 !important;
+    line-height: 1.0 !important;
   }
 
   /* החלף */
   .toggle-switch {
     flex-direction: row !important;
-    gap: 8px !important;
+    gap: 6px !important;
     align-items: center !important;
     justify-content: center !important;
-    margin-bottom: 4px !important;
+    margin-bottom: 0px !important;
   }
-
-
 
   /* חלק הכפתורים */
   .side-buttons {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 1px !important;
     width: 100% !important;
-    margin-top: 2px !important;
+    margin-top: 0px !important;
   }
 
   .controls {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 1px !important;
     width: 100% !important;
   }
 
   .main-controls {
     display: flex !important;
     flex-direction: row !important;
-    gap: 8px !important;
+    gap: 3px !important;
     width: 100% !important;
     justify-content: center !important;
   }
 
   .main-controls button {
-    width: 90px !important;
-    font-size: 12px !important;
-    padding: 6px 4px !important;
+    width: 85px !important;
+    font-size: 11px !important;
+    padding: 4px 2px !important;
     white-space: nowrap !important;
   }
 
@@ -235,13 +253,13 @@
     width: 100% !important;
     display: flex !important;
     justify-content: center !important;
-    margin-top: 8px !important;
+    margin-top: 0px !important;
   }
 
   .solution-button {
-    width: 130px !important;
-    font-size: 13px !important;
-    padding: 8px !important;
+    width: 120px !important;
+    font-size: 12px !important;
+    padding: 6px !important;
   }
 
   /* הודעות */

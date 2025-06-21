@@ -108,7 +108,7 @@ body.dark .back-button:hover {
 /* Game info section below the board */
 .game-info {
   text-align: center;
-  margin: 15px 0;
+  margin: 5px 0;
 }
 
 .difficulty-indicator {
@@ -117,7 +117,7 @@ body.dark .back-button:hover {
   border-radius: 15px;
   font-weight: bold;
   font-size: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 3px;
 }
 
 .difficulty-easy {
@@ -311,7 +311,7 @@ body.dark .difficulty-message {
   text-align: center;
   font-size: 14px;
   color: #333;
-  margin-top: 12px;
+  margin-top: 3px;
 }
 
 
@@ -329,9 +329,9 @@ body.dark .minimal-steps { color: #ffffff; }
 .toggle-switch {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   justify-content: center;
-  margin: 10px 0;
+  margin: 3px 0;
   font-weight: bold;
   font-family: inherit;
 }
@@ -512,8 +512,8 @@ body.dark .remainder-toggle-button-top.active:hover {
 /* === Minimal Steps Indicator === */
 
 .minimal-steps {
-  font-size: 10px;
-  margin-top: 4px;
+  font-size: 9px;
+  margin-top: 1px;
   font-weight: bold;
   color: #555;
 }
@@ -521,7 +521,7 @@ body.dark .remainder-toggle-button-top.active:hover {
 .solutions-count {
   color: #ffffff;
   font-size: 14px;
-  margin: 5px 0;
+  margin: 1px 0;
   font-weight: bold;
 }
 
@@ -550,6 +550,11 @@ body.dark .difficulty-tip {
 /* === Responsive: Mobile View === */
 
 @media (max-width: 500px) {
+  .puzzle-container {
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+
   button.cell {
     width: 48px !important;
     height: 48px !important;
@@ -566,22 +571,23 @@ body.dark .difficulty-tip {
   .controls {
     flex-direction: column !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 5px !important;
   }
 
   .controls button {
     width: 90% !important;
     font-size: 16px !important;
-    padding: 10px !important;
+    padding: 8px !important;
   }
 
   .toggle-switch {
     flex-direction: column !important;
-    gap: 6px !important;
+    gap: 3px !important;
+    margin: 2px 0 !important;
   }
 
   .puzzle-container {
-    padding: 10px !important;
+    padding: 8px !important;
   }
 
   .back-button,
@@ -594,6 +600,44 @@ body.dark .difficulty-tip {
     width: 28px;
     height: 28px;
     font-size: 12px;
+  }
+
+  .minimal-steps {
+    margin-top: 0px !important;
+    font-size: 10px !important;
+  }
+
+  .solutions-count {
+    margin: 0px !important;
+    font-size: 12px !important;
+  }
+
+  .message {
+    margin-top: 1px !important;
+    font-size: 12px !important;
+  }
+
+  .game-info {
+    margin: 0px 0 -10px 0 !important;
+  }
+
+  .difficulty-indicator {
+    margin-bottom: -5px !important;
+    font-size: 12px !important;
+    padding: 3px 6px !important;
+  }
+
+  .puzzle-container {
+    padding: 5px !important;
+  }
+
+  .puzzle-grid {
+    transform: scale(0.9) !important;
+    margin: 0px auto !important;
+  }
+
+  .puzzle-header {
+    margin-bottom: -5px !important;
   }
 }
 
