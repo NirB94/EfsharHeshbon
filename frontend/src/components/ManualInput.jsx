@@ -44,10 +44,197 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
   const [errors, setErrors] = useState([]);
   const [errorCells, setErrorCells] = useState(new Set()); // Track cells with errors
   
+  // Navigation state
+  const [showNavigationButtons, setShowNavigationButtons] = useState(false);
+  const [currentFocusedInput, setCurrentFocusedInput] = useState(null);
+  
   // Results state
   const [showResults, setShowResults] = useState(false);
   const [solveResults, setSolveResults] = useState(null);
   const [currentSolutionIndex, setCurrentSolutionIndex] = useState(0);
+
+  /**
+   * Get all input elements in tab order
+   */
+  const getAllInputsInOrder = () => {
+    const inputs = [];
+    
+    // Board cells (row by row, left to right)
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 5; col++) {
+        const input = document.querySelector(`input[data-cell="${row}-${col}"]`);
+        if (input) inputs.push(input);
+      }
+    }
+    
+    // Row targets
+    for (let row = 0; row < 5; row++) {
+      const input = document.querySelector(`input[data-row-target="${row}"]`);
+      if (input) inputs.push(input);
+    }
+    
+    // Column targets
+    for (let col = 0; col < 5; col++) {
+      const input = document.querySelector(`input[data-col-target="${col}"]`);
+      if (input) inputs.push(input);
+    }
+    
+    return inputs;
+  };
+
+  /**
+   * Handle keyboard navigation between input fields
+   */
+  const handleKeyDown = (e) => {
+    // Handle arrow keys and Enter
+    if (!['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) {
+      return;
+    }
+
+    e.preventDefault();
+    
+    const allInputs = getAllInputsInOrder();
+    const currentInput = e.target;
+    const currentIndex = allInputs.indexOf(currentInput);
+    
+    if (currentIndex === -1) return;
+    
+    let nextIndex = -1;
+    
+    if (e.key === 'ArrowDown') {
+      // Like Tab - move to next field
+      if (currentIndex < allInputs.length - 1) {
+        nextIndex = currentIndex + 1;
+      }
+    } else if (e.key === 'ArrowUp') {
+      // Like Shift+Tab - move to previous field
+      if (currentIndex > 0) {
+        nextIndex = currentIndex - 1;
+      }
+    } else if (e.key === 'Enter') {
+      // Enter - move to next field or blur if last
+      if (currentIndex < allInputs.length - 1) {
+        nextIndex = currentIndex + 1;
+      } else {
+        // Last field - blur to close keyboard
+        currentInput.blur();
+        return;
+      }
+    }
+    
+    if (nextIndex >= 0 && nextIndex < allInputs.length) {
+      const nextInput = allInputs[nextIndex];
+      nextInput.focus();
+      nextInput.select();
+    }
+  };
+
+  /**
+   * Handle key press to prevent non-numeric characters
+   */
+  const handleKeyPress = (e) => {
+    // Allow only digits
+    if (!/[0-9]/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  /**
+   * Handle input focus - show navigation buttons
+   */
+  const handleInputFocus = (e) => {
+    // Clear any pending hide timeouts
+    clearTimeout(window.navButtonsTimeout);
+    
+    setShowNavigationButtons(true);
+    setCurrentFocusedInput(e.target);
+  };
+
+  /**
+   * Handle input blur - hide navigation buttons after a delay
+   */
+  const handleInputBlur = (e) => {
+    // Check if the blur is caused by clicking on navigation buttons
+    const relatedTarget = e.relatedTarget;
+    if (relatedTarget && relatedTarget.closest('.mobile-navigation-buttons')) {
+      // Don't hide buttons if clicking on navigation
+      return;
+    }
+    
+    // Small delay to allow button clicks to register
+    window.navButtonsTimeout = setTimeout(() => {
+      // Check if any input still has focus
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement && (
+        activeElement.hasAttribute('data-cell') ||
+        activeElement.hasAttribute('data-row-target') ||
+        activeElement.hasAttribute('data-col-target')
+      );
+      
+      if (!isInputFocused) {
+        setShowNavigationButtons(false);
+        setCurrentFocusedInput(null);
+      }
+    }, 150);
+  };
+
+  /**
+   * Navigate to previous/next input or handle Enter
+   */
+  const navigateInput = (direction, event) => {
+    // Prevent the button click from causing blur
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    // Clear any pending hide timeouts
+    clearTimeout(window.navButtonsTimeout);
+    
+    if (!currentFocusedInput) return;
+    
+    if (direction === 'enter') {
+      // Enter behavior: move to next field or blur if last field
+      const allInputs = getAllInputsInOrder();
+      const currentIndex = allInputs.indexOf(currentFocusedInput);
+      
+      if (currentIndex === -1) return;
+      
+      if (currentIndex < allInputs.length - 1) {
+        // Move to next field
+        const nextInput = allInputs[currentIndex + 1];
+        nextInput.focus();
+        nextInput.select();
+        setCurrentFocusedInput(nextInput);
+      } else {
+        // Last field - blur to close keyboard
+        currentFocusedInput.blur();
+        setShowNavigationButtons(false);
+        setCurrentFocusedInput(null);
+      }
+      return;
+    }
+    
+    const allInputs = getAllInputsInOrder();
+    const currentIndex = allInputs.indexOf(currentFocusedInput);
+    
+    if (currentIndex === -1) return;
+    
+    let nextIndex = -1;
+    
+    if (direction === 'next' && currentIndex < allInputs.length - 1) {
+      nextIndex = currentIndex + 1;
+    } else if (direction === 'prev' && currentIndex > 0) {
+      nextIndex = currentIndex - 1;
+    }
+    
+    if (nextIndex >= 0 && nextIndex < allInputs.length) {
+      const nextInput = allInputs[nextIndex];
+      nextInput.focus();
+      nextInput.select();
+      setCurrentFocusedInput(nextInput);
+    }
+  };
 
   // Reset results state when coming from board with existing data
   useEffect(() => {
@@ -80,6 +267,22 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
       setErrors([]);
       setErrorCells(new Set());
     }
+    
+    // Auto-advance for board cells: move to next field when any single digit is entered
+    if (value.length === 1 && /^[0-9]$/.test(value)) {
+      setTimeout(() => {
+        const allInputs = getAllInputsInOrder();
+        const currentInput = document.querySelector(`input[data-cell="${row}-${col}"]`);
+        const currentIndex = allInputs.indexOf(currentInput);
+        
+        if (currentIndex >= 0 && currentIndex < allInputs.length - 1) {
+          const nextInput = allInputs[currentIndex + 1];
+          nextInput.focus();
+          nextInput.select();
+          setCurrentFocusedInput(nextInput);
+        }
+      }, 10);
+    }
   };
 
   /**
@@ -94,6 +297,22 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     if (errors.length > 0) {
       setErrors([]);
       setErrorCells(new Set());
+    }
+    
+    // Auto-advance for target cells: move to next field when 2 digits are entered
+    if (value.length === 2 && /^[0-9]{2}$/.test(value)) {
+      setTimeout(() => {
+        const allInputs = getAllInputsInOrder();
+        const currentInput = document.querySelector(`input[data-row-target="${index}"]`);
+        const currentIndex = allInputs.indexOf(currentInput);
+        
+        if (currentIndex >= 0 && currentIndex < allInputs.length - 1) {
+          const nextInput = allInputs[currentIndex + 1];
+          nextInput.focus();
+          nextInput.select();
+          setCurrentFocusedInput(nextInput);
+        }
+      }, 10);
     }
   };
 
@@ -110,6 +329,22 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
       setErrors([]);
       setErrorCells(new Set());
     }
+    
+    // Auto-advance for target cells: move to next field when 2 digits are entered
+    if (value.length === 2 && /^[0-9]{2}$/.test(value)) {
+      setTimeout(() => {
+        const allInputs = getAllInputsInOrder();
+        const currentInput = document.querySelector(`input[data-col-target="${index}"]`);
+        const currentIndex = allInputs.indexOf(currentInput);
+        
+        if (currentIndex >= 0 && currentIndex < allInputs.length - 1) {
+          const nextInput = allInputs[currentIndex + 1];
+          nextInput.focus();
+          nextInput.select();
+          setCurrentFocusedInput(nextInput);
+        }
+      }, 10);
+    }
   };
 
   /**
@@ -121,7 +356,8 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
       invalidRangeMultiply: [],
       invalidRangeAdd: [],
       invalidRowTargets: [],
-      invalidColTargets: []
+      invalidColTargets: [],
+      leadingZeroTargets: []
     };
     
     const errorCellsSet = new Set();
@@ -154,6 +390,10 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
       if (value === '' || isNaN(value) || parseInt(value) <= 0) {
         errorTypes.invalidRowTargets.push(i);
         errorCellsSet.add(`row-target-${i}`);
+      } else if (value.length > 1 && value.startsWith('0')) {
+        // Check for leading zero (e.g., "01", "02", etc.)
+        errorTypes.leadingZeroTargets.push({ type: 'row', index: i });
+        errorCellsSet.add(`row-target-${i}`);
       }
     }
     
@@ -162,6 +402,10 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
       const value = targetCols[i];
       if (value === '' || isNaN(value) || parseInt(value) <= 0) {
         errorTypes.invalidColTargets.push(i);
+        errorCellsSet.add(`col-target-${i}`);
+      } else if (value.length > 1 && value.startsWith('0')) {
+        // Check for leading zero (e.g., "01", "02", etc.)
+        errorTypes.leadingZeroTargets.push({ type: 'col', index: i });
         errorCellsSet.add(`col-target-${i}`);
       }
     }
@@ -187,6 +431,10 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
     
     if (errorTypes.invalidColTargets.length > 0) {
       errorMessages.push('יעדי העמודות חייבים להיות מספרים חיוביים');
+    }
+    
+    if (errorTypes.leadingZeroTargets.length > 0) {
+      errorMessages.push('יעדים לא יכולים להתחיל באפס (לדוגמה: 01, 02)');
     }
     
     return { errorMessages, errorCells: errorCellsSet };
@@ -530,18 +778,32 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
               <input
                 key={`cell-${rowIndex}-${colIndex}`}
                 type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min={operation === '*' ? '2' : '1'}
                 max="9"
                 value={cell}
                 onChange={(e) => handleBoardChange(rowIndex, colIndex, e.target.value)}
+                onKeyDown={handleKeyDown}
+                onKeyPress={handleKeyPress}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
+                data-cell={`${rowIndex}-${colIndex}`}
                 className={`board-cell ${errorCells.has(`board-${rowIndex}-${colIndex}`) ? 'error-cell' : ''}`}
               />
             ))}
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min="1"
               value={targetRows[rowIndex]}
               onChange={(e) => handleRowTargetChange(rowIndex, e.target.value)}
+              onKeyDown={handleKeyDown}
+              onKeyPress={handleKeyPress}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+              data-row-target={rowIndex}
               className={`target-input row-target ${errorCells.has(`row-target-${rowIndex}`) ? 'error-cell' : ''}`}
             />
           </div>
@@ -553,9 +815,16 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
             <input
               key={`col-${index}`}
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min="1"
               value={target}
               onChange={(e) => handleColTargetChange(index, e.target.value)}
+              onKeyDown={handleKeyDown}
+              onKeyPress={handleKeyPress}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+              data-col-target={index}
               className={`target-input col-target ${errorCells.has(`col-target-${index}`) ? 'error-cell' : ''}`}
             />
           ))}
@@ -572,6 +841,54 @@ export default function ManualInput({ onBack, onSolve, existingPuzzleData }) {
               <li key={index}>{error}</li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Navigation buttons for mobile */}
+      {showNavigationButtons && (
+        <div 
+          className="mobile-navigation-buttons"
+          onMouseDown={(e) => e.preventDefault()}
+          onTouchStart={(e) => e.preventDefault()}
+        >
+          <button 
+            className="nav-btn nav-next"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigateInput('next', e);
+            }}
+            disabled={!currentFocusedInput || getAllInputsInOrder().indexOf(currentFocusedInput) === getAllInputsInOrder().length - 1}
+            title="שדה הבא"
+            tabIndex="-1"
+          >
+            →
+          </button>
+          <button 
+            className="nav-btn nav-enter"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigateInput('enter', e);
+            }}
+            title="Enter"
+            tabIndex="-1"
+          >
+            ↵
+          </button>
+          <button 
+            className="nav-btn nav-prev"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigateInput('prev', e);
+            }}
+            disabled={!currentFocusedInput || getAllInputsInOrder().indexOf(currentFocusedInput) === 0}
+            title="שדה קודם"
+            tabIndex="-1"
+          >
+            ←
+          </button>
         </div>
       )}
 
