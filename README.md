@@ -18,7 +18,9 @@ This app was designed to work seamlessly across desktop and mobile devices, supp
 - ❌ **Forbidden Cells**: Mark certain cells as unusable to assist with logical deduction.  
 - 💡 **Hint System**: Highlights one incorrect cell to help users correct mistakes without giving away full answers.  
 - ✅ **Auto-Solve Detection**: Correct solutions are detected and acknowledged automatically.  
-- 🧩 **Responsive UI/UX**: Buttons, spacing, and visual feedback were carefully refined to feel natural across devices.  
+- 🧩 **Responsive UI/UX**: Buttons, spacing, and visual feedback were carefully refined to feel natural across devices.
+- 🛠️ **Manual Puzzle Input**: Create your own puzzle by entering a custom board.
+- 🤖 **Automatic Solver**: Let the app find and display all possible solutions for your custom board.
 
 ## Tech Stack
 
